@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Traffic GPS</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		
+		<!-- FontAwesome - http://fortawesome.github.io/Font-Awesome/ -->
+        <link rel="stylesheet" href="css/font-awesome.min.css" />
+
+		<!-- jQueryMobileCSS - original without styling -->
+        <link rel="stylesheet" href="css/jquerymobile.css" />
+
+		<!-- nativeDroid core CSS -->
+        <link rel="stylesheet" href="css/jquerymobile.nativedroid.css" />
+
+		<!-- nativeDroid: Light/Dark -->
+        <link rel="stylesheet" href="css/jquerymobile.nativedroid.dark.css"  id='jQMnDTheme' />
+
+		<!-- nativeDroid: Color Schemes -->
+        <link rel="stylesheet" href="css/jquerymobile.nativedroid.color.green.css" id='jQMnDColor' />
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="lib/leaflet/leaflet.ie.css" />
+        <![endif]-->
+        <link rel="stylesheet" href="lib/leaflet/leaflet.css" />
+		<link rel="stylesheet" href="css/leaflet-gps.css" />
+		<link rel="stylesheet" type="text/css" href="css/leaflet.usermarker.css">
+        <link rel="stylesheet" href="css/style.css" />
+
+		<!-- jQuery / jQueryMobile Scripts -->
+		<script src="lib/jquery-1.10.2.min.js"></script>
+        <script src="lib/jquery.mobile-1.3.2.min.js"></script>
+
+    </head>
+    <body>
+        
+    <div data-role="page" data-theme='b' id="index">
+    	<div data-role="panel" id="mypanel" data-theme="b" data-display="overlay">
+    		
+	        <ul data-role="listview" data-inset="false" data-icon="false" data-divider-theme="b">
+	        	<li data-role="list-divider">Display Traffic</li>
+                <li data-icon="desktop">
+                    <a href="#" data-rel="popup" data-position-to="window" data-transition="pop" >Advance Display</a>
+                </li>
+                <li data-icon="desktop">
+                    <a href="#" data-rel="popup" data-position-to="window" data-transition="pop" >Display Area</a>
+                </li>
+                <li data-role="fieldcontain">
+                    <div class="ui-grid-b">
+					    <div class="ui-block-a"><a href="dialogsnpopups.html" data-role="button" data-mini="true"><img src="images/getDirection.png"></a></div>
+					    <div class="ui-block-b"><a href="dialogsnpopups.html" data-role="button" data-mini="true"><img src="images/parking.png"></a></div>
+					    <div class="ui-block-c"><a href="dialogsnpopups.html" data-role="button" data-mini="true"><img src="images/car_repair.png"></a></div>
+					</div>
+                </li>
+                <li data-role="list-divider">Setting & Help</li>
+                <li data-icon="cogs">
+					<a href="#setting_alert" data-rel="popup" data-position-to="window" data-transition="pop" >Setting</a>
+	            </li>
+                <li data-icon="compass">
+                    <a href="#route_log" data-rel="popup" data-position-to="window" data-transition="pop">Route Log</a>
+                </li>
+	            <li data-icon="info">
+					<a href="headerfooter.html" data-transition="pop">Help & Tutorial</a>
+	            </li>
+	            <li data-icon="pencil">
+					<a href="#send_feedback" data-rel="popup" data-position-to="window" data-transition="pop">Send Feedback</a>
+	            </li>
+	        </ul>
+    	</div>
+        <div data-role="header" data-theme="b">
+            
+            <div class="ui-grid-c">
+                <div class="ui-block-a"><div class="ui-bar ui-bar-e"><a href="#mypanel" data-ajax="false"><i class='icon-tasks'></i></a></div></div>
+                <div class="ui-block-b"><div class="ui-bar ui-bar-e"><a href="#" id="move_center" data-ajax="false"><i class='icon-location-arrow'></i></a></div></div>
+                <div class="ui-block-c"><div class="ui-bar ui-bar-e"><a href="#route_track" data-ajax="false"><i class='icon-screenshot'></i></a></div></div>
+                <div class="ui-block-d"><div class="ui-bar ui-bar-e"><a href="#on_off_alert" data-ajax="false"><i class='icon-bell'></i></a></div></div>
+            </div><!-- /grid-c -->
+        </div>
+    	<div id="map_view" data-role="content">
+			
+			<div id="map"></div>
+			<script src="lib/leaflet/leaflet.js"></script>
+			<script src="lib/leaflet/leaflet-gps.js"></script>
+			<script src="lib/leaflet/leaflet.usermarker.js"></script>
+			<!--<script>
+
+				var map = new L.Map('map', {zoom: 17, center: new L.latLng([10.772076,106.657687]), zoomControl: false});
+
+				map.addLayer(new L.TileLayer('http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png'));	//base layer
+
+				map.addControl( new L.Control.Gps({autoActive: true, autoTracking: true, marker: new L.UserMarker([0,0])}) );//inizialize control
+			</script>-->
+             <script>
+                var map = L.map('map', { zoomControl: false });
+                var center_latlng;
+
+                L.tileLayer('http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                }).addTo(map);
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+                function onLocationFound(e) {
+                    var radius = e.accuracy / 2;
+
+                    L.marker(e.latlng).addTo(map);
+
+                    L.circle(e.latlng, radius).addTo(map);
+                }
+
+                function onLocationError(e) {
+                    alert(e.message);
+                }
+
+                map.on('locationfound', onLocationFound);
+                map.on('locationerror', onLocationError);
+
+                map.locate({setView: true, maxZoom: 16});
+                $( "#move_center" ).click(function() {
+                    map.panTo(center_latlng);
+                    map.setView(latlng,16);
+                });
+            </script>
+		</div>
+		<div data-role="popup" id="setting_alert" data-theme="b">
+            <div data-role="header" data-theme="b">
+            	<a href="#" data-ajax="false"><img src="images/advancedsettings.ico"></a>
+                <h1>Setting Alert</h1>
+            </div>
+    
+            <div data-role="content" data-theme="b">
+                <p>This is a regular page, styled as a dialog. To create a dialog, just link to a normal page and include a transition and <code>data-rel="dialog"</code> attribute.</p>
+                <div class='showastabs center nobg'>
+                        <a href="dialog/index.html" data-rel="back" data-icon="ok" data-iconpos="left" data-role="button" data-inline="true" data-transition="pop">OK</a>
+                        <a href="#" data-rel="back" data-icon="delete" data-iconpos="left" data-role="button" data-inline="true" data-transition="pop">Cancel</a>
+                </div>
+                
+            </div>
+        </div>
+        <div data-role="popup" id="send_feedback" data-theme="b" data-dismissible="false">
+            <div data-role="header" data-theme="b">
+            	<a href="#" data-ajax="false"><img src="images/feedback.ico"></a>
+                <h1>Send Feedback</h1>
+            </div>
+    
+            <div data-role="content" data-theme="b">
+                <p>This is a regular page, styled as a dialog. To create a dialog, just link to a normal page and include a transition and <code>data-rel="dialog"</code> attribute.</p>
+                <div class='showastabs center nobg'>
+                        <a href="dialog/index.html" data-rel="back" data-icon="ok" data-iconpos="left" data-role="button" data-inline="true" data-transition="pop">Send</a>
+                        <a href="#" data-rel="back" data-icon="delete" data-iconpos="left" data-role="button" data-inline="true" data-transition="pop">Cancel</a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    </body>
+</html>
